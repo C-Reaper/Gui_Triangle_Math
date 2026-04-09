@@ -2,6 +2,7 @@
 #include "/home/codeleaded/System/Static/Library/TransformedView.h"
 #include "/home/codeleaded/System/Static/Library/WindowEngine1.0.h"
 
+Vec2* selected = NULL;
 Triangle tri;
 TransformedView tv;
 
@@ -27,6 +28,30 @@ void Setup(AlxWindow* w){
 }
 void Update(AlxWindow* w){
 	TransformedView_HandlePanZoom(&tv,window.Strokes,GetMouse());
+
+    const float rs = 4.0f;
+	const float r = TransformedView_ScreenWorldLX(&tv,rs);
+
+	if(Stroke(ALX_MOUSE_L).PRESSED){
+		selected = NULL;
+
+		const Vec2 m = TransformedView_ScreenWorldPos(&tv,GetMouse());
+
+		for(int i = 0;i<3;i++){
+			Vec2* p = (Vec2*)(&tri) + i;
+			const Vec2 d = Vec2_Sub(*p,m);
+			
+			if(Vec2_Mag2(d) < r * r){
+				selected = p;
+			}
+		}
+	}
+	if(Stroke(ALX_MOUSE_L).DOWN){
+		if(selected){
+			const Vec2 m = TransformedView_ScreenWorldPos(&tv,GetMouse());
+			*selected = m;
+		}
+	}
 
 	Clear(BLACK);
 
